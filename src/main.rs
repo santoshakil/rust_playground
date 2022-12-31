@@ -16,6 +16,8 @@ fn main() {
         age: 30,
     };
 
+    // let shape: Shape = Shape::Circle { radius: 2.0 };
+
     println!("x is {}", x);
     println!("y is {}", y);
     println!("z is {}", z);
@@ -27,9 +29,15 @@ fn main() {
     println!("string is {}", string);
 
     println!("{} is {} years old", person.name, person.age);
+    // println!("shape is {:?}", shape);
 }
 
 struct Person {
     name: String,
     age: u8,
 }
+
+// enum Shape {
+//     Circle { radius: f32 },
+//     Rectangle { width: f32, height: f32 },
+// }
