@@ -21,6 +21,9 @@ fn main() {
     });
     normal_bool_thread.join().unwrap();
 
+    println!("............................................");
+    println!("............................................");
+
     // Example with an AtomicBool
     let atomic_bool = AtomicBool::new(false);
     let atomic_bool_arc = Arc::new(atomic_bool);
