@@ -1,12 +1,16 @@
+use std::path::Path;
+
 use sqlx::{sqlite::SqlitePoolOptions, Executor, Row};
 
 const DB_URL: &str = "sqlite:hashes.db";
 
 #[tokio::main]
 async fn main() {
-    _ = std::fs::File::create("hashes.db");
+    if !Path::new("hashes.db").exists() {
+        _ = std::fs::File::create("hashes.db");
+    }
     let db = SqlitePoolOptions::new()
-        .max_connections(10)
+        .max_connections(2)
         .connect(DB_URL)
         .await;
     if db.is_err() {
@@ -51,7 +55,7 @@ async fn main() {
             return;
         }
         let tx = tx.unwrap();
-        for i in 0..100000 {
+        for i in 0..1000000 {
             let start = std::time::Instant::now();
             _ = sqlx::query(&"INSERT INTO hashes (hash, salt, password) VALUES (?, ?, ?)")
                 .bind(format!("hash{}", i))
@@ -59,7 +63,7 @@ async fn main() {
                 .bind(format!("password{}", i))
                 .execute(&mut *conn)
                 .await;
-            println!("Write: {:?}", start.elapsed());
+            println!("Writen {:?}: {:?}", i, start.elapsed());
         }
         _ = tx.commit().await;
         println!("Write Total: {:?}", start.elapsed());
@@ -67,15 +71,15 @@ async fn main() {
     }
 
     let start = std::time::Instant::now();
-    for i in 0..100000 {
+    for i in 0..1000000 {
         let start = std::time::Instant::now();
         if let Ok(row) = sqlx::query(&"SELECT * FROM hashes WHERE hash = ?")
             .bind(format!("hash{}", i))
             .fetch_one(&mut *conn)
             .await
         {
-            let hash = row.get::<String, _>("hash");
-            println!("Read {:?}: {:?}", hash, start.elapsed());
+            let id = row.get::<i32, _>("id");
+            println!("Read {:?}: {:?}", id, start.elapsed());
         } else {
             println!("Not found: {:?}", start.elapsed());
         }
