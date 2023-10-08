@@ -1,23 +1,10 @@
-use std::sync::{Arc, RwLock};
-use std::thread;
+use std::sync::{Mutex, OnceLock};
+
+static ONCE: OnceLock<Mutex<i64>> = OnceLock::new();
 
 fn main() {
-    let data = Arc::new(RwLock::new(Vec::new()));
-
-    let handles: Vec<_> = (0..4)
-        .map(|i| {
-            let data = Arc::clone(&data);
-            thread::spawn(move || {
-                let mut data = data.write().unwrap();
-                data.push(i);
-            })
-        })
-        .collect();
-
-    for handle in handles {
-        handle.join().unwrap();
-    }
-
-    let final_data = data.read().unwrap();
-    println!("Final Vec: {:?}", *final_data);
+    let lock = ONCE.get_or_init(|| Mutex::new(42));
+    let mut value = lock.lock().unwrap();
+    *value = 50;
+    println!("Value: {}", *value);
 }
