@@ -1,10 +1,10 @@
-use std::sync::{Mutex, OnceLock};
+use std::sync::{OnceLock, RwLock};
 
-static ONCE: OnceLock<Mutex<i64>> = OnceLock::new();
+static ONCE: OnceLock<RwLock<i64>> = OnceLock::new();
 
 fn main() {
-    let lock = ONCE.get_or_init(|| Mutex::new(42));
-    let mut value = lock.lock().unwrap();
-    *value = 50;
+    let lock = ONCE.get_or_init(|| RwLock::new(0));
+    let mut value = lock.write().unwrap();
+    *value = 1;
     println!("Value: {}", *value);
 }
